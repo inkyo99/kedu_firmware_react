@@ -49,7 +49,7 @@ const AttendanceManagementAction = () => {
     const openVacationModal = async () => {
         const usersSeq = sessionStorage.getItem('usersSeq');
         try {
-            const response = await axios.get(`/vacation/annual/${usersSeq}`);
+            const response = await axios.get(`http://3.36.53.159:18000/vacation/annual/${usersSeq}`);
             console.log('Fetched vacation info:', response.data); 
             setAnnualVacationInfo(response.data);  // 서버에서 가져온 연차 정보를 상태에 저장
         } catch (error) {
@@ -123,7 +123,7 @@ const AttendanceManagementAction = () => {
             // 종료일에 시간을 23:59:59로 설정
             endDate.setHours(23, 59, 59, 999);
     
-            const response = await axios.post('/vacation/apply', {
+            const response = await axios.post('http://3.36.53.159:18000/vacation/apply', {
                 vacation_drafter_user_seq: sessionStorage.getItem('usersSeq'), // 사용자 ID
                 vacation_type_seq: 1, // 휴가 유형 ID (예: 1은 연차 휴가로 설정)
                 vacation_start_date: startDate.toISOString(), // Timestamp 형식에 맞게 수정

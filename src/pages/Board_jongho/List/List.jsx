@@ -23,23 +23,24 @@ export const List = ({ category = {} }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const itemsPerPage = 10;
     const serverUrl = process.env.REACT_APP_SERVER_URL;
+    const isAdmin = sessionStorage.getItem("isAdmin") || "false";
 
     useEffect(() => {
         const fetchCategory = category.category_seq || category.category_seq === 0 ? category : currentCategory;
 
-        axios.get(`${serverUrl}:3000/board/${fetchCategory.category_seq}`)
+        axios.get(`${serverUrl}:18000/board/${fetchCategory.category_seq}`)
             .then(response => {
                 setCurrentCategory(fetchCategory);
                 setData(response.data);
                 setSelectedItems([]);
                 setCurrentPage(1);
             })
-            .catch(error => {http://192.168.1.10:3000/
+            .catch(error => {
                 console.error('Error fetching data:', error);
             });
 
         // Fetch bookmarked posts for the current user
-        axios.get(`${serverUrl}:3000/bookmark`)
+        axios.get(`${serverUrl}:18000/bookmark`)
             .then(response => {
                 const bookmarked = new Set(response.data.map(post => post.board_seq));
                 setBookmarkedPosts(bookmarked);
@@ -79,13 +80,13 @@ export const List = ({ category = {} }) => {
     };
 
     const handleRowClick = (seq) => {
-        axios.put(`${serverUrl}:3000/board/viewCount`, { board_Seq: seq })
+        axios.put(`${serverUrl}:18000/board/viewCount`, { board_Seq: seq })
             .then(() => {
-                navigate(`/Board/Detail/${seq}`);
+                navigate(`/BoardDetail/${seq}`);
             })
             .catch(error => {
                 console.error('Error increasing view count:', error);
-                navigate(`/Board/Detail/${seq}`);
+                navigate(`/BoardDetail/${seq}`);
             });
     };
 
@@ -104,7 +105,7 @@ export const List = ({ category = {} }) => {
     const handleDelete = () => {
         if (window.confirm('정말 삭제하시겠습니까?')) {
             selectedItems.forEach(seq => {
-                axios.delete(`${serverUrl}:3000/board/${seq}`)
+                axios.delete(`${serverUrl}:18000/board/${seq}`)
                     .then(() => {
                         setData(data.filter(item => item.board_seq !== seq));
                         setSelectedItems(prevItems => prevItems.filter(item => item !== seq));
@@ -123,7 +124,7 @@ export const List = ({ category = {} }) => {
 
     const handleBookmarkToggle = (seq) => {
         if (bookmarkedPosts.has(seq)) {
-            axios.delete(`${serverUrl}:3000/bookmark/${seq}`)
+            axios.delete(`${serverUrl}:18000/bookmark/${seq}`)
                 .then(() => {
                     setBookmarkedPosts(prev => {
                         const updated = new Set(prev);
@@ -135,7 +136,7 @@ export const List = ({ category = {} }) => {
                     console.error('Error removing bookmark:', error);
                 });
         } else {
-            axios.post(`${serverUrl}:3000/bookmark/${seq}`)
+            axios.post(`${serverUrl}:18000/bookmark/${seq}`)
                 .then(() => {
                     setBookmarkedPosts(prev => new Set(prev).add(seq));
                 })
@@ -171,9 +172,12 @@ export const List = ({ category = {} }) => {
                         </button>
                         {isDropdownOpen && (
                             <ul className={styles.dropdownMenu}>
-                                <li>
-                                    <Link id={styles.write} to="Edit" onClick={() => setIsDropdownOpen(false)}>등록하기</Link>
-                                </li>
+                                { currentCategory.category_seq == 0 &&
+                                        (isAdmin == "true" && <li><Link id={styles.write} to="/BoardEdit"  onClick={() => setIsDropdownOpen(false)}>등록하기</Link></li> || <></> )
+                                    ||
+                                    <li><Link id={styles.write} to="/BoardEdit"  onClick={() => setIsDropdownOpen(false)}>등록하기</Link></li> 
+                                }                                    
+                                    
                                 <li onClick={() => handleToggleSort('latest')}>
                                     최신순
                                 </li>

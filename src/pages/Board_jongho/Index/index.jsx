@@ -4,14 +4,15 @@ import styles from './index.module.css';
 import SideBar from '../../../components/Sidebar/Sidebar';
 
 import BoardPage from '../../../config/BoardCategory';
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import List from '../List/List';
 import BoardEdit from '../Edit/Edit';
 import BoardDetail from '../Detail/Detail';
 
-const BoardIndex = (host) => {
+const Index = (host) => {
     const [selectedCategory, setSelectedCategory] = useState({});
     const navigate = useNavigate();
+    const location = useLocation();
 
     const serverUrl = process.env.REACT_APP_SERVER_URL;
 
@@ -22,21 +23,19 @@ const BoardIndex = (host) => {
                 <div className={styles.category}>
                     <div className={styles.category_content}>
                         <h1>게시판</h1>
-                        <BoardPage onChangeCategory={(e)=>{setSelectedCategory(e); navigate('./')}}  />
+                        <BoardPage onChangeCategory={(e)=>{setSelectedCategory(e); navigate('/Board')}}  />
                     </div>
                 </div>
                 <div className={styles.content}>
-                    <Routes>
-                        <Route path='' element={<List category={selectedCategory} />} />
-                        {/* {2. 그리고 여기에 선택한 카테고리가 입력됨.} */}
-                        <Route path='Edit' element={<BoardEdit category={selectedCategory} />} />
-                        {/* <Route path='Detail' element={<NoticeDetail />} /> */}
-                        <Route path='Detail/*' element={<BoardDetail />} /> 
-                    </Routes>
+                    <>
+                    {location.pathname == "/Board" &&       <List category={selectedCategory} /> }
+                    {location.pathname == "/BoardEdit" &&  <BoardEdit category={selectedCategory} /> }
+                    {location.pathname.indexOf("/BoardDetail") != -1 &&  <BoardDetail /> }
+                    </>
                 </div>
             </div>
         </div>
     );
 };
 
-export default BoardIndex;
+export default Index;
